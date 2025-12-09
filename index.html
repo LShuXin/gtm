@@ -35,7 +35,54 @@
 
   <div class="card">
     <h1>GTM + Meta Pixel + GA4</h1>
-    <p>test</p>
+
+    <br />
+
+    <input id="input-product-id" type="text" placeholder="输入商品ID" value="P-1001" />
+    <button id="add-item">add item</button>
+    
+    <br />
+    <br />
+    <br />
+    <br />
+    <div id="log-area"></div>
   </div>
+
+  <script>
+    // 确保 dataLayer 存在（在未安装 GTM 时仍可本地调试）
+    window.dataLayer = window.dataLayer || [];
+
+    function pushToDataLayer(obj) {
+      window.dataLayer.push(obj);
+      const log = document.getElementById('log-area');
+      const time = new Date().toISOString();
+      log.innerText = time + '  PUSH -> ' + JSON.stringify(obj) + '\n' + log.innerText;
+      console.log('dataLayer.push:', obj);
+    }
+
+    document.getElementById('add-item').addEventListener('click', function () {
+      const productId = document.getElementById('input-product-id').value;
+      pushToDataLayer({
+        event: 'select_item',
+        ecommerce: {
+          productId: productId
+        }
+      });
+    });
+
+    // 演示：监听 dataLayer 的变化（如果浏览器支持 Proxy）
+    try {
+      const original = window.dataLayer;
+      window.dataLayer = new Proxy(original, {
+        apply() { return Reflect.apply(...arguments); },
+        construct() { return Reflect.construct(...arguments); },
+        get(target, prop) {
+          return target[prop];
+        }
+      });
+    } catch (e) {
+      // 不影响功能，仅为兼容性示例
+    }
+  </script>
 </body>
 </html>
